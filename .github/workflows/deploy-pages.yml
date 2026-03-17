@@ -24,6 +24,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Inject API Config
+        run: |
+          cat > config.js << 'EOF'
+          const CONFIG = {
+              GEMINI_API_KEY: '${{ secrets.GEMINI_API_KEY }}',
+              GEMINI_MODEL: 'gemini-2.0-flash'
+          };
+          EOF
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
