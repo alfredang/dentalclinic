@@ -7,6 +7,7 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![n8n](https://img.shields.io/badge/n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)](https://n8n.io/)
 [![Groq](https://img.shields.io/badge/Groq_LLaMA_3.3-000000?style=for-the-badge&logo=groq&logoColor=white)](https://groq.com/)
+[![Google Calendar](https://img.shields.io/badge/Google_Calendar-4285F4?style=for-the-badge&logo=googlecalendar&logoColor=white)](https://calendar.google.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 **A modern, responsive dental clinic website with an AI-powered chatbot driven by n8n + Groq.**
@@ -29,8 +30,8 @@ BrightSmile is a professional, fully responsive dental clinic website designed w
 |---------|-------------|
 | 🎨 **Modern Design** | Clean UI with soft blues/greens, glassmorphism effects, and smooth animations |
 | 📱 **Fully Responsive** | Optimized for desktop, tablet, and mobile with CSS Grid & Flexbox |
-| 📅 **Appointment Booking** | Frontend booking form with real-time validation and success feedback |
-| 🤖 **AI Chatbot** | n8n Customer Service Agent powered by Groq LLaMA 3.3 70B + SerpAPI |
+| 📅 **Appointment Booking** | Book via form or chatbot — AI agent creates Google Calendar events directly |
+| 🤖 **AI Chatbot** | n8n Customer Service Agent powered by Groq LLaMA 3.3 70B + SerpAPI + Google Calendar |
 | 🦷 **Service Showcase** | Interactive service cards with hover effects and custom icons |
 | ⭐ **Testimonials** | Patient review section with professional card layout |
 | 🔗 **Smooth Navigation** | Sticky header, hamburger menu, scroll-reveal animations |
@@ -45,6 +46,7 @@ BrightSmile is a professional, fully responsive dental clinic website designed w
 | **AI Backend** | n8n Workflow (Webhook + AI Agent) |
 | **LLM** | Groq — LLaMA 3.3 70B Versatile |
 | **Search Tool** | SerpAPI (real-time web search) |
+| **Calendar** | Google Calendar API (appointment booking) |
 | **Icons** | Font Awesome 6 |
 | **Typography** | Google Fonts (Outfit) |
 
@@ -65,7 +67,8 @@ BrightSmile is a professional, fully responsive dental clinic website designed w
 │                           │    ↓                      │  │
 │                           │  Customer Service Agent   │  │
 │                           │    ├── Groq LLaMA 3.3     │  │
-│                           │    └── SerpAPI (search)    │  │
+│                           │    ├── SerpAPI (search)    │  │
+│                           │    └── Google Calendar     │  │
 │                           │    ↓                      │  │
 │                           │  Respond to Webhook       │  │
 │  ◄─────────────────────   │    → { output }           │  │
@@ -129,12 +132,22 @@ The AI chatbot connects to an **n8n workflow** with the following nodes:
 | Node | Purpose |
 |------|---------|
 | **Webhook** (POST) | Receives `{ chatInput }` from the website |
-| **Customer Service Agent** | AI agent with dental clinic system prompt |
+| **Customer Service Agent** | AI agent with dental clinic system prompt + `{{ $now }}` for date awareness |
 | **Groq Chat Model** | LLaMA 3.3 70B Versatile for generating responses |
 | **SerpAPI** | Real-time web search tool for the agent |
+| **Google Calendar** | Creates appointment events directly on Google Calendar |
 | **Respond to Webhook** | Returns `{ output }` back to the website |
 
-The agent ("Bella") is configured with BrightSmile clinic details including hours (Mon-Fri 9-7, Sat 10-4), services, contact info, and conversation guidelines.
+The agent ("Bella") is configured with BrightSmile clinic details including hours (Mon-Fri 9-7, Sat 10-4), services, contact info, and conversation guidelines. It uses `{{ $now }}` to resolve relative dates like "tomorrow" or "next Monday".
+
+### Chatbot Appointment Booking
+
+Patients can book appointments directly through the chatbot:
+
+1. Tell Bella what service you need and your preferred date/time
+2. Bella validates the request (no Sundays, Saturday 10-4 only, future dates)
+3. A Google Calendar event is created automatically
+4. Bella confirms with appointment details and clinic address
 
 ### GitHub Pages Deployment
 
