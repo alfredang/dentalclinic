@@ -123,11 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     };
 
-    // --- Dynamic Chatbot with Gemini API ---
-    // API key loaded from config.js (not committed to version control)
-    const GEMINI_API_KEY = (typeof CONFIG !== 'undefined' && CONFIG.GEMINI_API_KEY) ? CONFIG.GEMINI_API_KEY : '';
-    const GEMINI_MODEL = (typeof CONFIG !== 'undefined' && CONFIG.GEMINI_MODEL) ? CONFIG.GEMINI_MODEL : 'gemini-2.0-flash';
-    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+    // --- Dynamic Chatbot with n8n Webhook ---
+    // Webhook URL loaded from config.js (not committed to version control)
+    const N8N_WEBHOOK_URL = (typeof CONFIG !== 'undefined' && CONFIG.N8N_WEBHOOK_URL) ? CONFIG.N8N_WEBHOOK_URL : '';
 
     const handleChat = async () => {
         const userText = chatInput.value.trim();
@@ -146,29 +144,24 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
         try {
-            const response = await fetch(GEMINI_URL, {
+            const response = await fetch(N8N_WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [{ text: `You are a professional, friendly dental assistant for "BrightSmile Clinic". 
-                        Keep responses helpful, concise (max 2-3 sentences), and focused on dental care. 
-                        Clinic Hours: Mon-Fri 9-7, Sat 10-4. Services: Cleaning, Whitening, Braces, Implants.
-                        Patient Query: ${userText}` }]
-                    }]
+                    chatInput: userText
                 })
             });
 
             const data = await response.json();
-            const botResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm here to help! Could you please rephrase that?";
-            
+            const botResponse = data.output || data.text || data.response || "I'm here to help! Could you please rephrase that?";
+
             // Remove typing indicator and add real message
             const indicator = document.getElementById(typingId);
             if (indicator) indicator.remove();
-            
+
             addMessage(botResponse, 'bot');
         } catch (error) {
-            console.error('Gemini API Error:', error);
+            console.error('n8n Webhook Error:', error);
             const indicator = document.getElementById(typingId);
             if (indicator) indicator.remove();
             addMessage("I'm sorry, I'm having trouble connecting. Please call us at +1 (234) 567 890 for immediate assistance.", 'bot');
